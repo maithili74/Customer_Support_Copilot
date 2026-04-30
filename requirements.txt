@@ -1,0 +1,10 @@
+datasets
+sentence-transformers
+chromadb
+openai
+gradio
+pandas
+numpy
+python-dotenv
+tqdm
+Pillow
