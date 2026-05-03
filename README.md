@@ -46,14 +46,14 @@ Customer Input (text + optional image/logs)
 
 ## Features
 
-- **Multi-agent RAG pipeline** — Classifier → Retriever → Responder → Evaluator → Router
-- **Multimodal inputs** — text queries, error screenshots (Gemini Vision), and system error logs
-- **3-layer guardrails** — regex fast path, LLM-based injection + toxicity detection, PII masking
-- **Confidence-based routing** — automatically escalates low-confidence queries to human agents
-- **Conversation memory** — remembers last 3 exchanges for natural follow-up questions
-- **Evaluator fast path** — skips LLM call for high/low similarity cases to reduce latency
-- **Category-aware reranking** — boosts retrieved docs that match the classified category
-- **Gradio chat UI** — clean interface with screenshot upload, log paste, and example queries
+- **Multi-agent RAG pipeline** - Classifier → Retriever → Responder → Evaluator → Router
+- **Multimodal inputs** - text queries, error screenshots (Gemini Vision), and system error logs
+- **3-layer guardrails** - regex fast path, LLM-based injection + toxicity detection, PII masking
+- **Confidence-based routing** - automatically escalates low-confidence queries to human agents
+- **Conversation memory** - remembers last 3 exchanges for natural follow-up questions
+- **Evaluator fast path** - skips LLM call for high/low similarity cases to reduce latency
+- **Category-aware reranking** - boosts retrieved docs that match the classified category
+- **Gradio chat UI** - clean interface with screenshot upload, log paste, and example queries
 
 ## Project Structure
 
