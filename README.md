@@ -2,6 +2,17 @@
 
 A production-grade multi-agent RAG system for intelligent customer support. Handles text queries, error screenshots, and system logs with confidence-based routing, 3-layer guardrails, and human escalation.
 
+## Features
+
+- **Multi-agent RAG pipeline** - Classifier → Retriever → Responder → Evaluator → Router
+- **Multimodal inputs** - text queries, error screenshots (Gemini Vision), and system error logs
+- **3-layer guardrails** - regex fast path, LLM-based injection + toxicity detection, PII masking
+- **Confidence-based routing** - automatically escalates low-confidence queries to human agents
+- **Conversation memory** - remembers last 3 exchanges for natural follow-up questions
+- **Evaluator fast path** - skips LLM call for high/low similarity cases to reduce latency
+- **Category-aware reranking** - boosts retrieved docs that match the classified category
+- **Gradio chat UI** - clean interface with screenshot upload, log paste, and example queries
+
 ## Architecture
 
 ```
@@ -33,16 +44,25 @@ Customer Input (text + optional image/logs)
     └─────────────────┘
 ```
 
-## Features
+##  Tech Stack
 
-- **Multi-agent RAG pipeline** - Classifier → Retriever → Responder → Evaluator → Router
-- **Multimodal inputs** - text queries, error screenshots (Gemini Vision), and system error logs
-- **3-layer guardrails** - regex fast path, LLM-based injection + toxicity detection, PII masking
-- **Confidence-based routing** - automatically escalates low-confidence queries to human agents
-- **Conversation memory** - remembers last 3 exchanges for natural follow-up questions
-- **Evaluator fast path** - skips LLM call for high/low similarity cases to reduce latency
-- **Category-aware reranking** - boosts retrieved docs that match the classified category
-- **Gradio chat UI** - clean interface with screenshot upload, log paste, and example queries
+| Component | Technology |
+|-----------|------------|
+| LLM (text) | Llama 3.1 8B via Groq API |
+| LLM (vision) | Gemini 2.5 Flash |
+| Embeddings | all-MiniLM-L6-v2 (sentence-transformers) |
+| Vector DB | ChromaDB (local, persisted) |
+| Dataset | Bitext Customer Support (26K conversations) |
+| UI | Gradio 6.x |
+| Guardrails | Regex + LLM classification |
+
+## How RAG Works Here
+
+1. **Knowledge base** - 26,000 real customer support responses embedded using `all-MiniLM-L6-v2` and stored in ChromaDB
+2. **Query embedding** - customer question converted to the same vector space
+3. **Similarity search** - ChromaDB finds top 5 most semantically similar KB documents
+4. **Reranking** - documents matching the classified category are boosted, top 3 returned
+5. **Grounded generation** - Llama 3.1 reads the 3 retrieved documents as context and generates an answer based on them
 
 ## Project Structure
 
@@ -65,26 +85,43 @@ customer-support-copilot/
 ├── requirements.txt
 └── README.md
 ```
+## ⚙️ Setup
 
-##  Tech Stack
+### 1. Clone the repository
 
-| Component | Technology |
-|-----------|------------|
-| LLM (text) | Llama 3.1 8B via Groq API |
-| LLM (vision) | Gemini 2.5 Flash |
-| Embeddings | all-MiniLM-L6-v2 (sentence-transformers) |
-| Vector DB | ChromaDB (local, persisted) |
-| Dataset | Bitext Customer Support (26K conversations) |
-| UI | Gradio 6.x |
-| Guardrails | Regex + LLM classification |
+```bash
+git clone https://github.com/msithili74/Customer-Support-Copilot.git
+cd customer-support-copilot
+```
 
-## How RAG Works Here
+### 2. Install dependencies
 
-1. **Knowledge base** - 26,000 real customer support responses embedded using `all-MiniLM-L6-v2` and stored in ChromaDB
-2. **Query embedding** - customer question converted to the same vector space
-3. **Similarity search** - ChromaDB finds top 5 most semantically similar KB documents
-4. **Reranking** - documents matching the classified category are boosted, top 3 returned
-5. **Grounded generation** - Llama 3.1 reads the 3 retrieved documents as context and generates an answer based on them
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Add API keys
+
+Open `notebooks/agents.py` (or whichever file you run first) and set:
+
+```python
+GROQ_API_KEY   = "gsk_..."    
+GEMINI_API_KEY = "AIza..."    
+```
+
+### 4. Build the knowledge base (run once)
+
+Run all cells in `data_rag.ipynb`. This downloads the dataset, creates embeddings, and saves them to ChromaDB. Takes about 5-10 minutes on first run, instant on subsequent runs.
+
+### 5. Run the UI
+
+```bash
+python notebooks/ui.py
+```
+
+Open `http://localhost:7860` in your browser.
+
+---
 
 ## Evaluation Results
 
